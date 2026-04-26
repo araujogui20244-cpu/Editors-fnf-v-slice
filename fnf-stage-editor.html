@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>FNF Editors Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d0d1a;font-family:'Nunito',sans-serif;}
+
+/* ═══ SCREENS ═══ */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;z-index:1;}
+.screen.active{display:flex;}
+
+/* ═══ TRANSITIONS ═══ */
+#fade{position:fixed;inset:0;z-index:9999;background:#000;opacity:0;pointer-events:none;transition:opacity .3s;}
+#fade.on{opacity:1;pointer-events:all;}
+
+/* ═══ LANDING ═══ */
+#s-land{background:radial-gradient(ellipse at 30% 40%,#1a0a3e,#0d0d1a 70%),radial-gradient(ellipse at 70% 60%,#0a1a3a,transparent);align-items:center;justify-content:center;flex-direction:column;gap:0;}
+.land-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.land-bg::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:50px 50px;}
+.land-logo{font-family:'Bangers',cursive;font-size:clamp(38px,10vw,72px);letter-spacing:4px;background:linear-gradient(135deg,#FF2D78,#9B30FF,#00F5FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;animation:glow 3s ease infinite alternate;margin-bottom:8px;z-index:1;}
+@keyframes glow{from{filter:drop-shadow(0 0 20px rgba(255,45,120,.6))}to{filter:drop-shadow(0 0 40px rgba(0,245,255,.6))}}
+.land-sub{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2.5vw,14px);color:rgba(255,255,255,.4);letter-spacing:3px;text-align:center;margin-bottom:50px;z-index:1;}
+.editors-row{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;z-index:1;}
+.editor-card{width:clamp(160px,38vw,240px);aspect-ratio:1;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.editor-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(155,48,255,.15),rgba(0,245,255,.08));opacity:0;transition:opacity .3s;}
+.editor-card:hover::before,.editor-card:hover{border-color:rgba(155,48,255,.5);transform:translateY(-6px);box-shadow:0 20px 60px rgba(155,48,255,.25);}
+.editor-card.disabled{opacity:.4;cursor:not-allowed;}
+.editor-card.disabled:hover{transform:none;box-shadow:none;border-color:rgba(255,255,255,.1);}
+.editor-card.disabled::before{opacity:0!important;}
+.ec-icon{font-size:48px;}
+.ec-name{font-family:'Bangers',cursive;font-size:20px;letter-spacing:2px;color:#fff;}
+.ec-badge{font-size:9px;font-family:'Share Tech Mono',monospace;padding:3px 10px;border-radius:999px;background:rgba(255,45,120,.2);border:1px solid rgba(255,45,120,.4);color:#FF2D78;}
+.ec-badge.av{background:rgba(0,255,136,.15);border-color:rgba(0,255,136,.4);color:#00FF88;}
+.land-credits{position:absolute;bottom:20px;font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,255,255,.25);text-align:center;z-index:1;letter-spacing:1px;}
+.land-credits span{color:rgba(155,48,255,.6);}
+
+/* ═══ ROTATE PROMPT ═══ */
+#s-rotate{background:#0d0d1a;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:500;}
+.rot-icon{font-size:64px;animation:rot 2s ease-in-out infinite;}
+@keyframes rot{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+.rot-text{font-family:'Bangers',cursive;font-size:28px;letter-spacing:2px;color:#fff;text-align:center;}
+.rot-sub{font-size:13px;color:rgba(255,255,255,.5);text-align:center;}
+
+/* ═══ RECENTS ═══ */
+#s-recents{background:#0d0d1a;flex-direction:column;}
+.recents-nav{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.4);}
+.r-logo{font-family:'Bangers',cursive;font-size:18px;letter-spacing:2px;background:linear-gradient(135deg,#FF2D78,#9B30FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.r-back{padding:4px 14px;border:1px solid rgba(255,255,255,.15);border-radius:999px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;font-family:'Share Tech Mono',monospace;background:none;transition:all .2s;}
+.r-back:hover{color:#fff;border-color:rgba(255,255,255,.35);}
+.recents-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px 20px;}
+.rec-title{font-family:'Bangers',cursive;font-size:28px;letter-spacing:2px;color:#fff;margin-bottom:4px;}
+.rec-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%;max-width:700px;}
+.rc{flex:1;min-width:200px;max-width:300px;padding:24px 20px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);cursor:pointer;text-align:center;transition:all .2s;}
+.rc:hover{border-color:rgba(155,48,255,.5);background:rgba(155,48,255,.08);transform:translateY(-4px);}
+.rc-icon{font-size:36px;margin-bottom:10px;}
+.rc-name{font-family:'Bangers',cursive;font-size:18px;letter-spacing:1px;color:#fff;margin-bottom:5px;}
+.rc-desc{font-size:11px;color:rgba(255,255,255,.4);}
+.rc.new-btn{border-style:dashed;border-color:rgba(0,255,136,.35);}
+.rc.new-btn:hover{border-color:rgba(0,255,136,.7);background:rgba(0,255,136,.06);}
+
+/* ═══ EDITOR SCREEN ═══ */
+#s-editor{background:#1a1a1a;flex-direction:column;overflow:hidden;}
+
+/* TOP BAR */
+.ed-topbar{display:flex;align-items:center;height:40px;background:#111;border-bottom:2px solid #222;padding:0 8px;gap:4px;z-index:200;flex-shrink:0;}
+.tb-group{display:flex;align-items:center;gap:2px;padding:0 4px;border-right:1px solid rgba(255,255,255,.07);}
+.tb-group:last-child{border-right:none;margin-left:auto;}
+.tb-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;border:none;background:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:11px;font-family:'Share Tech Mono',monospace;transition:all .2s;white-space:nowrap;}
+.tb-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+.tb-btn.active{background:rgba(155,48,255,.25);color:#BF80FF;}
+.tb-btn.danger:hover{background:rgba(255,45,120,.15);color:#FF2D78;}
+.tb-sep{width:1px;height:20px;background:rgba(255,255,255,.08);margin:0 4px;}
+.stage-name-inp{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:5px;color:#fff;font-size:11px;font-family:'Share Tech Mono',monospace;padding:3px 8px;width:120px;outline:none;}
+.stage-name-inp:focus{border-color:rgba(155,48,255,.5);}
+
+/* CANVAS AREA */
+.ed-canvas-wrap{flex:1;position:relative;overflow:hidden;background:#2a2a2a;}
+.stage-canvas{position:absolute;background:#fff;overflow:hidden;}
+
+/* Characters and objects in canvas */
+.char-el,.prop-el{position:absolute;cursor:move;touch-action:none;}
+.char-el img,.prop-el img{width:100%;height:100%;object-fit:contain;pointer-events:none;display:block;}
+.char-el.selected,.prop-el.selected{outline:2px dashed rgba(0,245,255,.8);outline-offset:2px;}
+.char-el .char-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-family:'Share Tech Mono',monospace;color:rgba(255,255,255,.6);white-space:nowrap;pointer-events:none;}
+.handle-corner{position:absolute;width:10px;height:10px;border-radius:2px;background:#00F5FF;cursor:nwse-resize;display:none;}
+.selected .handle-corner{display:block;}
+.handle-br{bottom:-5px;right:-5px;}
+
+/* BOTTOM LEFT TOOLBAR */
+.ed-botleft{position:absolute;bottom:16px;left:16px;z-index:200;display:flex;flex-direction:column;gap:6px;}
+.bl-btn{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,25,.85);backdrop-filter:blur(8px);color:rgba(255,255,255,.8);cursor:pointer;font-size:11px;font-family:'Share Tech Mono',monospace;transition:all .2s;white-space:nowrap;}
+.bl-btn:hover{border-color:rgba(155,48,255,.5);color:#fff;background:rgba(30,15,60,.9);}
+.bl-btn.active{border-color:rgba(0,255,136,.5);color:#00FF88;background:rgba(0,30,15,.9);}
+
+/* RIGHT CONTROLS */
+.ed-botright{position:absolute;bottom:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:6px;}
+.zoom-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,25,.85);backdrop-filter:blur(8px);color:rgba(255,255,255,.8);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.zoom-btn:hover{border-color:rgba(0,245,255,.5);color:#00F5FF;}
+
+/* POSITION PANEL */
+.pos-panel{position:absolute;top:50px;right:10px;z-index:200;background:rgba(12,12,22,.92);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;min-width:170px;display:none;}
+.pos-panel.show{display:block;}
+.pp-title{font-size:9px;color:rgba(255,255,255,.35);font-family:'Share Tech Mono',monospace;letter-spacing:2px;margin-bottom:10px;}
+.pp-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.pp-lbl{font-size:10px;color:rgba(255,255,255,.5);font-family:'Share Tech Mono',monospace;width:16px;}
+.pp-inp{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#fff;font-size:11px;font-family:'Share Tech Mono',monospace;padding:4px 7px;width:70px;outline:none;}
+.pp-inp:focus{border-color:rgba(155,48,255,.5);}
+.pp-sep{height:1px;background:rgba(255,255,255,.07);margin:8px 0;}
+.pp-scale-row{display:flex;align-items:center;gap:6px;}
+.pp-save{width:100%;padding:6px;border-radius:7px;background:linear-gradient(135deg,rgba(155,48,255,.4),rgba(255,45,120,.3));border:1px solid rgba(155,48,255,.5);color:#fff;cursor:pointer;font-size:11px;font-family:'Share Tech Mono',monospace;margin-top:10px;transition:all .2s;}
+.pp-save:hover{background:linear-gradient(135deg,rgba(155,48,255,.6),rgba(255,45,120,.5));}
+
+/* CHAR PICKER MODAL */
+.modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;}
+.modal.show{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:#13131f;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:22px;max-width:480px;width:100%;}
+.modal-title{font-family:'Bangers',cursive;font-size:22px;letter-spacing:2px;color:#fff;margin-bottom:4px;}
+.modal-sub{font-size:10px;color:rgba(255,255,255,.35);font-family:'Share Tech Mono',monospace;margin-bottom:16px;letter-spacing:1px;}
+.char-picker{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.char-pick-btn{flex:1;min-width:100px;max-width:130px;padding:16px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;text-align:center;transition:all .2s;}
+.char-pick-btn:hover{border-color:rgba(155,48,255,.5);background:rgba(155,48,255,.1);transform:translateY(-3px);}
+.char-pick-btn img{width:60px;height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;}
+.char-pick-btn .cpname{font-family:'Bangers',cursive;font-size:15px;letter-spacing:1px;color:#fff;}
+.modal-close{float:right;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;margin-top:-4px;}
+.modal-close:hover{color:#fff;}
+.modal-btns{display:flex;gap:8px;margin-top:14px;}
+.mb{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-family:'Share Tech Mono',monospace;transition:all .2s;}
+.mb-cancel{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);}
+.mb-cancel:hover{background:rgba(255,255,255,.12);color:#fff;}
+.mb-confirm{background:linear-gradient(135deg,#9B30FF,#FF2D78);color:#fff;}
+.mb-confirm:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(155,48,255,.4);}
+
+/* UPLOAD BG MODAL */
+.upbg-zone{border:2px dashed rgba(255,255,255,.15);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px;}
+.upbg-zone:hover{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.04);}
+.upbg-zone.has{border-color:rgba(0,255,136,.6);background:rgba(0,255,136,.06);}
+
+/* SAVE MODAL */
+.save-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.sg-inp{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:#fff;font-size:12px;font-family:'Share Tech Mono',monospace;padding:7px 10px;outline:none;width:100%;}
+.sg-inp:focus{border-color:rgba(155,48,255,.5);}
+.sg-lbl{font-size:9px;color:rgba(255,255,255,.35);font-family:'Share Tech Mono',monospace;letter-spacing:1px;margin-bottom:3px;display:block;}
+.save-preview{background:rgba(0,0,0,.4);border-radius:8px;padding:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.7);max-height:140px;overflow-y:auto;margin-bottom:12px;white-space:pre;}
+
+/* NOTIFS */
+#notif{position:fixed;top:50px;right:14px;z-index:9000;display:flex;flex-direction:column;gap:7px;pointer-events:none;max-width:250px;}
+.ni{padding:8px 13px;border-radius:8px;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.35);color:#fff;font-size:11px;font-family:'Share Tech Mono',monospace;animation:slideIn .25s ease;word-break:break-word;}
+.ni.err{background:rgba(255,45,120,.12);border-color:rgba(255,45,120,.4);}
+.ni.info{background:rgba(0,245,255,.08);border-color:rgba(0,245,255,.3);}
+@keyframes slideIn{from{opacity:0;transform:translateX(15px)}to{opacity:1;transform:none}}
+
+/* COORDS DISPLAY */
+.coords-bar{position:absolute;bottom:0;left:0;right:0;height:22px;background:rgba(0,0,0,.6);border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:0 12px;gap:16px;z-index:199;font-size:9px;font-family:'Share Tech Mono',monospace;color:rgba(255,255,255,.3);}
+.cb-item span{color:rgba(0,245,255,.6);}
+
+/* CANVAS GRID OVERLAY */
+.grid-overlay{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+
+/* Mode indicators */
+.mode-badge{position:absolute;top:50px;left:16px;z-index:200;padding:4px 12px;border-radius:999px;font-size:9px;font-family:'Share Tech Mono',monospace;letter-spacing:2px;display:none;}
+.mode-badge.show{display:block;}
+.mode-badge.move-bg{background:rgba(0,245,255,.15);border:1px solid rgba(0,245,255,.35);color:#00F5FF;}
+.mode-badge.move-obj{background:rgba(155,48,255,.15);border:1px solid rgba(155,48,255,.35);color:#BF80FF;}
+</style>
+</head>
+<body>
+
+<!-- FADE OVERLAY -->
+<div id="fade"></div>
+<!-- NOTIFS -->
+<div id="notif"></div>
+
+<!-- ═══════════ LANDING ═══════════ -->
+<div class="screen active" id="s-land">
+  <div class="land-bg"></div>
+  <div class="land-logo">FNF EDITORS HUB</div>
+  <div class="land-sub">FERRAMENTAS DA COMUNIDADE</div>
+  <div class="editors-row">
+    <div class="editor-card" onclick="openRecents()">
+      <div class="ec-icon">🎭</div>
+      <div class="ec-name">STAGE EDITOR</div>
+      <div class="ec-badge av">DISPONÍVEL</div>
+    </div>
+    <div class="editor-card disabled" onclick="showNA()">
+      <div class="ec-icon">🎼</div>
+      <div class="ec-name">CHART EDITOR</div>
+      <div class="ec-badge">INDISPONÍVEL</div>
+    </div>
+  </div>
+  <div class="land-credits">
+    Made by <span>gudvd🪐</span> &amp; by <span>Qwen.ai</span>
+  </div>
+</div>
+
+<!-- ═══════════ ROTATE SCREEN ═══════════ -->
+<div class="screen" id="s-rotate">
+  <div class="rot-icon">📱</div>
+  <div class="rot-text">VIRE O CELULAR</div>
+  <div class="rot-sub">Este editor precisa do modo paisagem (horizontal)</div>
+</div>
+
+<!-- ═══════════ RECENTS ═══════════ -->
+<div class="screen" id="s-recents">
+  <div class="recents-nav">
+    <span class="r-logo">STAGE EDITOR</span>
+    <button class="r-back" onclick="goTo('s-land')">← Voltar</button>
+  </div>
+  <div class="recents-body">
+    <div style="text-align:center;">
+      <div class="rec-title">STAGE EDITOR</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Share Tech Mono',monospace;margin-bottom:22px;letter-spacing:1px;">EDITOR DE STAGES V-SLICE</div>
+    </div>
+    <div class="rec-cards">
+      <div class="rc new-btn" onclick="createNew()">
+        <div class="rc-icon">✨</div>
+        <div class="rc-name">CRIAR NOVO</div>
+        <div class="rc-desc">Stage em branco do zero</div>
+      </div>
+      <div class="rc" id="recent1" style="opacity:.35;pointer-events:none;">
+        <div class="rc-icon">📂</div>
+        <div class="rc-name">RECENTES</div>
+        <div class="rc-desc">Nenhum stage salvo ainda</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,.2);font-family:'Share Tech Mono',monospace;margin-top:12px;text-align:center;">
+      Os stages salvos aparecem automaticamente
+    </div>
+  </div>
+  <div class="land-credits" style="position:relative;bottom:auto;margin-top:auto;padding:14px;">
+    Made by <span style="color:rgba(155,48,255,.7);">gudvd🪐</span> &amp; by <span style="color:rgba(155,48,255,.7);">Qwen.ai</span>
+  </div>
+</div>
+
+<!-- ═══════════ EDITOR ═══════════ -->
+<div class="screen" id="s-editor">
+
+  <!-- TOP BAR -->
+  <div class="ed-topbar">
+    <!-- Logo -->
+    <div class="tb-group" style="border-right:1px solid rgba(255,255,255,.07);">
+      <button class="tb-btn" onclick="goTo('s-recents')" style="color:rgba(155,48,255,.8);">⬅ Sair</button>
+    </div>
+
+    <!-- Objetos -->
+    <div class="tb-group">
+      <button class="tb-btn" id="btn-addobj" onclick="openAddObjModal()">＋ Objeto</button>
+      <button class="tb-btn danger" id="btn-rmobj" onclick="removeSelected()">✕ Remover</button>
+    </div>
+
+    <!-- Personagens -->
+    <div class="tb-group">
+      <button class="tb-btn" onclick="openCharModal()">👤 Personagem</button>
+    </div>
+
+    <!-- Posição -->
+    <div class="tb-group">
+      <button class="tb-btn" id="btn-pos" onclick="togglePosPanel()">📐 Posição</button>
+    </div>
+
+    <!-- Stage name -->
+    <div class="tb-group" style="margin-left:auto;border:none;">
+      <input class="stage-name-inp" id="stageNameInp" value="meu-stage" placeholder="nome-do-stage">
+      <button class="tb-btn" onclick="openSaveModal()" style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:#00FF88;">💾 Salvar</button>
+    </div>
+  </div>
+
+  <!-- MAIN CANVAS -->
+  <div class="ed-canvas-wrap" id="edCanvasWrap">
+    <div class="stage-canvas" id="stageCanvas">
+      <div class="grid-overlay" id="gridOverlay"></div>
+      <!-- bg image goes here, z-index:1 -->
+      <!-- chars/props go here, z-index:10+ -->
+    </div>
+  </div>
+
+  <!-- MODE BADGE -->
+  <div class="mode-badge" id="modeBadge"></div>
+
+  <!-- BOTTOM LEFT -->
+  <div class="ed-botleft">
+    <button class="bl-btn" id="bl-movebg" onclick="setMode('movebg')">🌄 Mover Fundo</button>
+    <button class="bl-btn" id="bl-moveobj" onclick="setMode('moveobj')">🖱 Mover Objetos</button>
+    <button class="bl-btn" onclick="openBGModal()">🖼 Adicionar Fundo</button>
+    <button class="bl-btn" onclick="toggleGrid()">⊞ Grid</button>
+  </div>
+
+  <!-- ZOOM CONTROLS -->
+  <div class="ed-botright">
+    <button class="zoom-btn" onclick="zoom(0.1)" title="Zoom In">＋</button>
+    <button class="zoom-btn" onclick="zoom(-0.1)" title="Zoom Out">－</button>
+    <button class="zoom-btn" onclick="resetView()" title="Reset" style="font-size:11px;">↺</button>
+  </div>
+
+  <!-- POSITION PANEL -->
+  <div class="pos-panel" id="posPanel">
+    <div class="pp-title">POSIÇÃO DO ELEMENTO</div>
+    <div class="pp-row">
+      <span class="pp-lbl">X</span>
+      <input class="pp-inp" id="ppX" type="number" value="0" onchange="applyPosPanel()">
+    </div>
+    <div class="pp-row">
+      <span class="pp-lbl">Y</span>
+      <input class="pp-inp" id="ppY" type="number" value="0" onchange="applyPosPanel()">
+    </div>
+    <div class="pp-sep"></div>
+    <div class="pp-title">ESCALA</div>
+    <div class="pp-row">
+      <span class="pp-lbl">W</span>
+      <input class="pp-inp" id="ppW" type="number" value="100" onchange="applyPosPanel()">
+    </div>
+    <div class="pp-row">
+      <span class="pp-lbl">H</span>
+      <input class="pp-inp" id="ppH" type="number" value="120" onchange="applyPosPanel()">
+    </div>
+    <div class="pp-sep"></div>
+    <div class="pp-title">FLIP</div>
+    <div class="pp-row" style="gap:6px;">
+      <button class="mb mb-cancel" style="padding:4px 10px;font-size:10px;" onclick="flipEl('x')">Flip X</button>
+      <button class="mb mb-cancel" style="padding:4px 10px;font-size:10px;" onclick="flipEl('y')">Flip Y</button>
+    </div>
+  </div>
+
+  <!-- COORDS BAR -->
+  <div class="coords-bar" id="coordsBar">
+    <span>X: <span id="cX">0</span></span>
+    <span>Y: <span id="cY">0</span></span>
+    <span>Zoom: <span id="cZoom">1.0</span>x</span>
+    <span>Selecionado: <span id="cSel">—</span></span>
+    <span style="margin-left:auto;font-size:8px;">Stage: 1280×720 (V-Slice)</span>
+  </div>
+</div>
+
+<!-- ═══════════ CHAR MODAL ═══════════ -->
+<div class="modal" id="charModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('charModal')">✕</button>
+    <div class="modal-title">PERSONAGENS</div>
+    <div class="modal-sub">ESCOLHA UM PERSONAGEM PARA ADICIONAR</div>
+    <div class="char-picker">
+      <div class="char-pick-btn" onclick="addChar('bf')">
+        <img id="bfImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwi17MsUWJ7zmeO5su9iXVt_norwBGOvKn6PQWXhyI2w&s" alt="BF" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2280%22><rect width=%2260%22 height=%2280%22 fill=%22%2300AAFF%22/><text x=%2230%22 y=%2250%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22>BF</text></svg>'">
+        <div class="cpname">BOYFRIEND</div>
+      </div>
+      <div class="char-pick-btn" onclick="addChar('gf')">
+        <img id="gfImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr8R8-sPV8SRpLHec0gGdrBaEqILwK3TYkYN2JmgtoEg&s=10" alt="GF" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2280%22><rect width=%2260%22 height=%2280%22 fill=%22%22FF5599%22/><text x=%2230%22 y=%2250%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22>GF</text></svg>'">
+        <div class="cpname">GIRLFRIEND</div>
+      </div>
+      <div class="char-pick-btn" onclick="addChar('dad')">
+        <img id="dadImg" alt="Dad" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2280%22><rect width=%2260%22 height=%2280%22 fill=%22%22885522%22/><text x=%2230%22 y=%2250%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2214%22>DAD</text></svg>'">
+        <div class="cpname">DAD</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);">
+      <div class="modal-sub" style="margin-bottom:10px;">OU FAÇA UPLOAD DE PERSONAGEM CUSTOMIZADO</div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:rgba(255,255,255,.6);font-family:'Share Tech Mono',monospace;">
+        <div style="padding:6px 14px;border-radius:7px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);">📁 Escolher PNG</div>
+        <input type="file" id="customCharFile" accept="image/*" style="display:none" onchange="addCustomChar(this)">
+        <span id="customCharName">Nenhum arquivo</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ADD OBJ MODAL ═══════════ -->
+<div class="modal" id="addObjModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('addObjModal')">✕</button>
+    <div class="modal-title">ADICIONAR OBJETO/PROP</div>
+    <div class="modal-sub">FAÇA UPLOAD DA IMAGEM DO PROP</div>
+    <label class="upbg-zone" id="objZone">
+      <div style="font-size:28px;margin-bottom:8px;">🗿</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Clique ou arraste aqui</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">PNG com transparência</div>
+      <input type="file" id="objFile" accept="image/*" style="display:none" onchange="previewObj(this)">
+    </label>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label style="font-size:9px;color:rgba(255,255,255,.35);font-family:'Share Tech Mono',monospace;letter-spacing:1px;display:block;margin-bottom:4px;">NOME DO PROP</label>
+      <input class="sg-inp" id="objName" placeholder="meu-prop">
+    </div>
+    <div class="modal-btns">
+      <button class="mb mb-cancel" onclick="closeModal('addObjModal')">Cancelar</button>
+      <button class="mb mb-confirm" onclick="confirmAddObj()">Adicionar ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ BG MODAL ═══════════ -->
+<div class="modal" id="bgModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('bgModal')">✕</button>
+    <div class="modal-title">FUNDO DO STAGE</div>
+    <div class="modal-sub">FAÇA UPLOAD DA IMAGEM DE FUNDO</div>
+    <label class="upbg-zone" id="bgZone" for="bgFile">
+      <div style="font-size:36px;margin-bottom:8px;">🌄</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Clique para selecionar</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">PNG, JPG ou GIF</div>
+      <div style="font-size:10px;color:rgba(0,255,136,.6);margin-top:6px;display:none;" id="bgFileName"></div>
+    </label>
+    <input type="file" id="bgFile" accept="image/*" style="display:none" onchange="loadBg(this)">
+    <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:10px;font-family:'Share Tech Mono',monospace;">
+      💡 Após adicionar, use "Mover Fundo" para posicionar
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SAVE MODAL ═══════════ -->
+<div class="modal" id="saveModal">
+  <div class="modal-box" style="max-width:540px;">
+    <button class="modal-close" onclick="closeModal('saveModal')">✕</button>
+    <div class="modal-title">💾 SALVAR STAGE</div>
+    <div class="modal-sub">EXPORTAR EM FORMATO V-SLICE</div>
+    <div class="save-grid">
+      <div>
+        <label class="sg-lbl">STAGE ID</label>
+        <input class="sg-inp" id="save-id" placeholder="meu-stage">
+      </div>
+      <div>
+        <label class="sg-lbl">DISPLAY NAME</label>
+        <input class="sg-inp" id="save-name" placeholder="Meu Stage">
+      </div>
+      <div>
+        <label class="sg-lbl">CAMERA ZOOM</label>
+        <input class="sg-inp" id="save-zoom" type="number" value="1.0" step="0.1" min="0.1" max="3">
+      </div>
+      <div>
+        <label class="sg-lbl">DIRECTORY</label>
+        <input class="sg-inp" id="save-dir" placeholder="meuStage">
+      </div>
+    </div>
+    <div class="sg-lbl">PREVIEW DO JSON</div>
+    <div class="save-preview" id="savePreview">Clique em "Gerar Preview" para ver</div>
+    <div class="modal-btns">
+      <button class="mb mb-cancel" onclick="genPreview()">👁 Preview JSON</button>
+      <button class="mb mb-cancel" onclick="closeModal('saveModal')">Cancelar</button>
+      <button class="mb mb-confirm" onclick="doSave()">⬇ Baixar Stage</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ IMAGES DATA ═══
+const DAD_SRC = "data:image/jpeg;base64,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";
+
+// ═══ STATE ═══
+let state = {
+  mode: 'select',       // select | movebg | moveobj
+  scale: 1,
+  stageW: 1280,
+  stageH: 720,
+  canvasX: 0,
+  canvasY: 0,
+  bgX: 0, bgY: 0,
+  bgFlipped: false,
+  elements: [],         // {id, type, name, x, y, w, h, flipX, flipY, zIndex, src}
+  selected: null,       // element id
+  bgSrc: null,
+  bgEl: null,
+  nextId: 1,
+  gridVisible: true,
+  isDragging: false,
+  dragOffX: 0, dragOffY: 0,
+  dragStartBgX: 0, dragStartBgY: 0,
+  lastMouseX: 0, lastMouseY: 0,
+};
+
+// ═══ CHAR DEFS ═══
+const CHARS = {
+  bf:  { name: 'Boyfriend', src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwi17MsUWJ7zmeO5su9iXVt_norwBGOvKn6PQWXhyI2w&s", w: 130, h: 160, zIndex: 300, defaultX: 780, defaultY: 440 },
+  gf:  { name: 'Girlfriend', src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr8R8-sPV8SRpLHec0gGdrBaEqILwK3TYkYN2JmgtoEg&s=10", w: 110, h: 140, zIndex: 100, defaultX: 570, defaultY: 460 },
+  dad: { name: 'Daddy Dearest', src: DAD_SRC, w: 140, h: 180, zIndex: 200, defaultX: 200, defaultY: 400 },
+};
+
+document.getElementById('dadImg').src = DAD_SRC;
+
+// ═══ AUDIO ═══
+const AC = new (window.AudioContext||window.webkitAudioContext)();
+function beep(f=880,d=.1,v=.08){try{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.frequency.setValueAtTime(f,AC.currentTime);o.frequency.exponentialRampToValueAtTime(f*.6,AC.currentTime+d);g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d);}catch(e){}}
+
+// ═══ NOTIFICATIONS ═══
+function notify(m,t='ok'){const d=document.createElement('div');d.className='ni'+(t==='err'?' err':t==='info'?' info':'');d.textContent=(t==='ok'?'✓ ':t==='err'?'✗ ':'ℹ ')+m;document.getElementById('notif').appendChild(d);setTimeout(()=>{d.style.opacity='0';d.style.transition='opacity .4s';setTimeout(()=>d.remove(),400);},2800);}
+
+// ═══ SCREEN NAV ═══
+const fade = document.getElementById('fade');
+let curScreen = 's-land';
+function goTo(id) {
+  fade.classList.add('on');
+  setTimeout(() => {
+    document.getElementById(curScreen).classList.remove('active');
+    document.getElementById(id).classList.add('active');
+    curScreen = id;
+    fade.classList.remove('on');
+    beep(800,.1);
+  }, 260);
+}
+function showNA() { notify('Chart Editor em breve!', 'info'); beep(500,.08); }
+
+// ═══ ORIENTATION CHECK ═══
+function checkOrientation() {
+  if (curScreen !== 's-editor') return;
+  const portrait = window.innerHeight > window.innerWidth;
+  if (portrait) {
+    document.getElementById('s-rotate').classList.add('active');
+    document.getElementById('s-editor').classList.remove('active');
+  } else {
+    document.getElementById('s-rotate').classList.remove('active');
+    document.getElementById('s-editor').classList.add('active');
+    resizeCanvas();
+  }
+}
+window.addEventListener('resize', () => { checkOrientation(); resizeCanvas(); });
+window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 300));
+
+function openRecents() { beep(1000,.12); goTo('s-recents'); }
+
+function createNew() {
+  beep(1100,.12);
+  // Reset state
+  state.elements = [];
+  state.selected = null;
+  state.scale = 1;
+  state.bgSrc = null;
+  state.bgX = 0; state.bgY = 0;
+  state.mode = 'select';
+  state.nextId = 1;
+  
+  const canvas = document.getElementById('stageCanvas');
+  canvas.innerHTML = '<div class="grid-overlay" id="gridOverlay"></div>';
+  state.bgEl = null;
+  
+  checkOrientation();
+  if (window.innerHeight <= window.innerWidth) {
+    goTo('s-editor');
+    setTimeout(resizeCanvas, 300);
+  } else {
+    curScreen = 's-editor';
+    document.getElementById('s-recents').classList.remove('active');
+    document.getElementById('s-rotate').classList.add('active');
+  }
+}
+
+// ═══ CANVAS SIZING ═══
+function resizeCanvas() {
+  const wrap = document.getElementById('edCanvasWrap');
+  const canvas = document.getElementById('stageCanvas');
+  const wW = wrap.clientWidth, wH = wrap.clientHeight - 22;
+  const scaleX = wW / state.stageW;
+  const scaleY = wH / state.stageH;
+  state.scale = Math.min(scaleX, scaleY) * 0.9;
+  const cW = state.stageW * state.scale;
+  const cH = state.stageH * state.scale;
+  state.canvasX = (wW - cW) / 2;
+  state.canvasY = (wH - cH) / 2;
+  canvas.style.width = cW + 'px';
+  canvas.style.height = cH + 'px';
+  canvas.style.left = state.canvasX + 'px';
+  canvas.style.top = state.canvasY + 'px';
+  document.getElementById('cZoom').textContent = state.scale.toFixed(2);
+}
+
+function zoom(delta) {
+  state.scale = Math.max(0.2, Math.min(3, state.scale + delta));
+  const canvas = document.getElementById('stageCanvas');
+  const wrap = document.getElementById('edCanvasWrap');
+  const cW = state.stageW * state.scale;
+  const cH = state.stageH * state.scale;
+  state.canvasX = (wrap.clientWidth - cW) / 2;
+  state.canvasY = (wrap.clientHeight - 22 - cH) / 2;
+  canvas.style.width = cW + 'px';
+  canvas.style.height = cH + 'px';
+  canvas.style.left = state.canvasX + 'px';
+  canvas.style.top = state.canvasY + 'px';
+  document.getElementById('cZoom').textContent = state.scale.toFixed(2);
+  beep(state.scale > 1 ? 900 : 700, .07);
+}
+
+function resetView() {
+  resizeCanvas();
+  beep(800,.08);
+}
+
+// ═══ GRID ═══
+function toggleGrid() {
+  state.gridVisible = !state.gridVisible;
+  document.getElementById('gridOverlay').style.display = state.gridVisible ? 'block' : 'none';
+  beep(700,.07);
+}
+
+// ═══ MODE ═══
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('bl-movebg').classList.toggle('active', m === 'movebg');
+  document.getElementById('bl-moveobj').classList.toggle('active', m === 'moveobj');
+  const badge = document.getElementById('modeBadge');
+  if (m === 'movebg') {
+    badge.className = 'mode-badge move-bg show';
+    badge.textContent = 'MODO: MOVER FUNDO';
+    notify('Clique e arraste o fundo', 'info');
+  } else if (m === 'moveobj') {
+    badge.className = 'mode-badge move-obj show';
+    badge.textContent = 'MODO: MOVER OBJETOS';
+    notify('Clique e arraste objetos/personagens', 'info');
+  } else {
+    badge.className = 'mode-badge';
+  }
+  beep(750,.08);
+}
+
+// ═══ BACKGROUND ═══
+function openBGModal() { document.getElementById('bgModal').classList.add('show'); beep(800,.09); }
+
+function loadBg(input) {
+  const f = input.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    state.bgSrc = e.target.result;
+    applyBg();
+    document.getElementById('bgFileName').textContent = '✓ ' + f.name;
+    document.getElementById('bgFileName').style.display = 'block';
+    document.getElementById('bgZone').classList.add('has');
+    notify('Fundo carregado!');
+    beep(1100,.12);
+    setTimeout(() => closeModal('bgModal'), 600);
+  };
+  reader.readAsDataURL(f);
+}
+
+function applyBg() {
+  const canvas = document.getElementById('stageCanvas');
+  let bgEl = document.getElementById('stageBg');
+  if (!bgEl) {
+    bgEl = document.createElement('img');
+    bgEl.id = 'stageBg';
+    bgEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;display:block;';
+    canvas.insertBefore(bgEl, canvas.firstChild.nextSibling);
+  }
+  bgEl.src = state.bgSrc;
+  bgEl.style.transform = `translate(${state.bgX}px,${state.bgY}px)`;
+  state.bgEl = bgEl;
+  
+  // Make BG draggable when in movebg mode
+  bgEl.onmousedown = bgEl.ontouchstart = (e) => {
+    if (state.mode !== 'movebg') return;
+    e.preventDefault();
+    e.stopPropagation();
+    const pt = e.touches ? e.touches[0] : e;
+    state.isDragging = true;
+    state.lastMouseX = pt.clientX;
+    state.lastMouseY = pt.clientY;
+    state.dragStartBgX = state.bgX;
+    state.dragStartBgY = state.bgY;
+  };
+}
+
+// ═══ CHARACTERS ═══
+function openCharModal() { document.getElementById('charModal').classList.add('show'); beep(800,.09); }
+
+function addChar(type) {
+  closeModal('charModal');
+  const def = CHARS[type];
+  // Check if already exists
+  const exists = state.elements.find(e => e.charType === type);
+  if (exists) {
+    notify(`${def.name} já está no stage!`, 'info');
+    selectElement(exists.id);
+    return;
+  }
+  
+  const id = 'el_' + state.nextId++;
+  const el = {
+    id, type: 'char', charType: type,
+    name: def.name, src: def.src,
+    x: def.defaultX, y: def.defaultY,
+    w: def.w, h: def.h,
+    flipX: type === 'dad', flipY: false,
+    zIndex: def.zIndex
+  };
+  state.elements.push(el);
+  renderElement(el);
+  selectElement(id);
+  notify(`${def.name} adicionado!`);
+  beep(1000,.12);
+}
+
+function addCustomChar(input) {
+  const f = input.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    closeModal('charModal');
+    const id = 'el_' + state.nextId++;
+    const el = {
+      id, type: 'char', charType: 'custom',
+      name: f.name.replace(/\.[^.]+$/, ''),
+      src: e.target.result,
+      x: 500, y: 400, w: 120, h: 160,
+      flipX: false, flipY: false, zIndex: 150
+    };
+    state.elements.push(el);
+    renderElement(el);
+    selectElement(id);
+    notify('Personagem customizado adicionado!');
+    beep(1100,.12);
+    document.getElementById('customCharName').textContent = f.name;
+  };
+  reader.readAsDataURL(f);
+}
+
+// ═══ OBJECTS ═══
+function openAddObjModal() { document.getElementById('addObjModal').classList.add('show'); beep(800,.09); }
+let pendingObjSrc = null;
+function previewObj(input) {
+  const f = input.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingObjSrc = e.target.result;
+    document.getElementById('objName').value = f.name.replace(/\.[^.]+$/,'');
+    document.getElementById('objZone').style.background = `rgba(155,48,255,.08)`;
+    document.getElementById('objZone').style.borderColor = 'rgba(155,48,255,.5)';
+  };
+  reader.readAsDataURL(f);
+}
+
+function confirmAddObj() {
+  if (!pendingObjSrc) {
+    document.getElementById('objFile').click();
+    return;
+  }
+  const name = document.getElementById('objName').value || 'prop';
+  const id = 'el_' + state.nextId++;
+  const el = {
+    id, type: 'prop', name,
+    src: pendingObjSrc,
+    x: 300, y: 200, w: 150, h: 150,
+    flipX: false, flipY: false, zIndex: 50
+  };
+  state.elements.push(el);
+  renderElement(el);
+  selectElement(id);
+  pendingObjSrc = null;
+  closeModal('addObjModal');
+  notify('Prop adicionado!');
+  beep(1000,.12);
+}
+
+// ═══ RENDER ELEMENT ═══
+function renderElement(el) {
+  const canvas = document.getElementById('stageCanvas');
+  let div = document.getElementById(el.id);
+  if (!div) {
+    div = document.createElement('div');
+    div.id = el.id;
+    div.className = el.type === 'char' ? 'char-el' : 'prop-el';
+    
+    const img = document.createElement('img');
+    img.src = el.src;
+    img.alt = el.name;
+    div.appendChild(img);
+    
+    const label = document.createElement('div');
+    label.className = 'char-label';
+    label.textContent = el.name;
+    div.appendChild(label);
+    
+    const handle = document.createElement('div');
+    handle.className = 'handle-corner handle-br';
+    handle.addEventListener('mousedown', startResize.bind(null, el.id));
+    handle.addEventListener('touchstart', startResize.bind(null, el.id));
+    div.appendChild(handle);
+    
+    div.addEventListener('mousedown', e => { if (state.mode !== 'movebg') { e.stopPropagation(); startDragEl(el.id, e); }});
+    div.addEventListener('touchstart', e => { if (state.mode !== 'movebg') { e.stopPropagation(); startDragEl(el.id, e); }}, {passive:false});
+    
+    canvas.appendChild(div);
+  }
+  
+  updateElDOM(el, div);
+}
+
+function updateElDOM(el, div) {
+  if (!div) div = document.getElementById(el.id);
+  if (!div) return;
+  const s = state.scale;
+  div.style.left = (el.x * s) + 'px';
+  div.style.top = (el.y * s) + 'px';
+  div.style.width = (el.w * s) + 'px';
+  div.style.height = (el.h * s) + 'px';
+  div.style.zIndex = el.zIndex + 5;
+  const img = div.querySelector('img');
+  if (img) {
+    let t = '';
+    if (el.flipX) t += 'scaleX(-1) ';
+    if (el.flipY) t += 'scaleY(-1) ';
+    img.style.transform = t;
+  }
+}
+
+// ═══ ELEMENT SELECTION ═══
+function selectElement(id) {
+  // Deselect old
+  if (state.selected) {
+    const old = document.getElementById(state.selected);
+    if (old) old.classList.remove('selected');
+  }
+  state.selected = id;
+  const div = document.getElementById(id);
+  if (div) div.classList.add('selected');
+  
+  const el = state.elements.find(e => e.id === id);
+  if (el) {
+    document.getElementById('ppX').value = Math.round(el.x);
+    document.getElementById('ppY').value = Math.round(el.y);
+    document.getElementById('ppW').value = Math.round(el.w);
+    document.getElementById('ppH').value = Math.round(el.h);
+    document.getElementById('cSel').textContent = el.name;
+  }
+}
+
+function deselectAll() {
+  if (state.selected) {
+    const d = document.getElementById(state.selected);
+    if (d) d.classList.remove('selected');
+    state.selected = null;
+    document.getElementById('cSel').textContent = '—';
+  }
+}
+
+// ═══ DRAG ELEMENT ═══
+let dragState = null;
+function startDragEl(id, e) {
+  e.preventDefault();
+  selectElement(id);
+  const el = state.elements.find(x => x.id === id);
+  if (!el) return;
+  const pt = e.touches ? e.touches[0] : e;
+  dragState = {
+    type: 'el', id,
+    startX: pt.clientX, startY: pt.clientY,
+    startElX: el.x, startElY: el.y
+  };
+}
+
+function startResize(id, e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = state.elements.find(x => x.id === id);
+  if (!el) return;
+  const pt = e.touches ? e.touches[0] : e;
+  dragState = {
+    type: 'resize', id,
+    startX: pt.clientX, startY: pt.clientY,
+    startW: el.w, startH: el.h
+  };
+}
+
+// Global mouse/touch handlers
+const edWrap = () => document.getElementById('edCanvasWrap');
+
+document.addEventListener('mousemove', globalMove);
+document.addEventListener('touchmove', globalMove, {passive:false});
+document.addEventListener('mouseup', globalUp);
+document.addEventListener('touchend', globalUp);
+
+function globalMove(e) {
+  const pt = e.touches ? e.touches[0] : e;
+  const mx = pt.clientX, my = pt.clientY;
+  
+  // Update coords display
+  const canvas = document.getElementById('stageCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const cx = Math.round((mx - rect.left) / state.scale);
+  const cy = Math.round((my - rect.top) / state.scale);
+  document.getElementById('cX').textContent = cx;
+  document.getElementById('cY').textContent = cy;
+  
+  if (!dragState) {
+    // Check if dragging background (movebg mode with mouse held)
+    if (state.mode === 'movebg' && state.isDragging && state.bgEl) {
+      const dx = mx - state.lastMouseX;
+      const dy = my - state.lastMouseY;
+      state.bgX = state.dragStartBgX + (mx - state.startDragMX || 0);
+      state.bgY = state.dragStartBgY + (my - state.startDragMY || 0);
+      if (!state.startDragMX) { state.startDragMX = state.lastMouseX; state.startDragMY = state.lastMouseY; }
+      state.bgX = state.dragStartBgX + (mx - state.startDragMX);
+      state.bgY = state.dragStartBgY + (my - state.startDragMY);
+      state.bgEl.style.transform = `translate(${state.bgX}px,${state.bgY}px)`;
+    }
+    return;
+  }
+  
+  if (e.cancelable) e.preventDefault();
+  
+  if (dragState.type === 'el') {
+    const el = state.elements.find(x => x.id === dragState.id);
+    if (!el) return;
+    const dx = (mx - dragState.startX) / state.scale;
+    const dy = (my - dragState.startY) / state.scale;
+    el.x = dragState.startElX + dx;
+    el.y = dragState.startElY + dy;
+    updateElDOM(el);
+    document.getElementById('ppX').value = Math.round(el.x);
+    document.getElementById('ppY').value = Math.round(el.y);
+    
+  } else if (dragState.type === 'resize') {
+    const el = state.elements.find(x => x.id === dragState.id);
+    if (!el) return;
+    const dx = (mx - dragState.startX) / state.scale;
+    const dy = (my - dragState.startY) / state.scale;
+    el.w = Math.max(20, dragState.startW + dx);
+    el.h = Math.max(20, dragState.startH + dy);
+    updateElDOM(el);
+    document.getElementById('ppW').value = Math.round(el.w);
+    document.getElementById('ppH').value = Math.round(el.h);
+  }
+}
+
+function globalUp(e) {
+  dragState = null;
+  state.isDragging = false;
+  state.startDragMX = null;
+  state.startDragMY = null;
+}
+
+// Click on canvas wraper to deselect / start bg drag
+document.getElementById('edCanvasWrap').addEventListener('mousedown', e => {
+  if (e.target === document.getElementById('edCanvasWrap') || e.target === document.getElementById('stageCanvas') || e.target === document.getElementById('gridOverlay') || e.target === document.getElementById('stageBg')) {
+    if (state.mode === 'movebg' && state.bgEl) {
+      state.isDragging = true;
+      state.lastMouseX = e.clientX;
+      state.lastMouseY = e.clientY;
+      state.startDragMX = e.clientX;
+      state.startDragMY = e.clientY;
+      state.dragStartBgX = state.bgX;
+      state.dragStartBgY = state.bgY;
+    } else {
+      deselectAll();
+    }
+  }
+});
+
+// ═══ REMOVE ELEMENT ═══
+function removeSelected() {
+  if (!state.selected) { notify('Selecione um elemento primeiro!', 'err'); return; }
+  const idx = state.elements.findIndex(e => e.id === state.selected);
+  if (idx >= 0) {
+    const div = document.getElementById(state.selected);
+    if (div) div.remove();
+    const name = state.elements[idx].name;
+    state.elements.splice(idx, 1);
+    state.selected = null;
+    document.getElementById('cSel').textContent = '—';
+    notify(`${name} removido!`);
+    beep(500,.1);
+  }
+}
+
+// ═══ POSITION PANEL ═══
+function togglePosPanel() {
+  const p = document.getElementById('posPanel');
+  p.classList.toggle('show');
+  document.getElementById('btn-pos').classList.toggle('active');
+  beep(700,.07);
+}
+
+function applyPosPanel() {
+  if (!state.selected) return;
+  const el = state.elements.find(e => e.id === state.selected);
+  if (!el) return;
+  el.x = parseFloat(document.getElementById('ppX').value) || 0;
+  el.y = parseFloat(document.getElementById('ppY').value) || 0;
+  el.w = parseFloat(document.getElementById('ppW').value) || 100;
+  el.h = parseFloat(document.getElementById('ppH').value) || 100;
+  updateElDOM(el);
+}
+
+function flipEl(axis) {
+  if (!state.selected) { notify('Selecione um elemento!', 'err'); return; }
+  const el = state.elements.find(e => e.id === state.selected);
+  if (!el) return;
+  if (axis === 'x') el.flipX = !el.flipX;
+  else el.flipY = !el.flipY;
+  updateElDOM(el);
+  beep(900,.08);
+}
+
+// ═══ MODAL UTILS ═══
+function closeModal(id) { document.getElementById(id).classList.remove('show'); beep(600,.07); }
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+// ═══ SAVE / EXPORT ═══
+function openSaveModal() {
+  const stageId = document.getElementById('stageNameInp').value || 'meu-stage';
+  document.getElementById('save-id').value = stageId;
+  document.getElementById('save-dir').value = stageId;
+  document.getElementById('saveModal').classList.add('show');
+  beep(800,.09);
+}
+
+function genPreview() {
+  const json = buildJSON();
+  document.getElementById('savePreview').textContent = JSON.stringify(json, null, 2);
+}
+
+function buildJSON() {
+  const stageId = document.getElementById('save-id').value || 'meu-stage';
+  const stageName = document.getElementById('save-name').value || 'Meu Stage';
+  const cameraZoom = parseFloat(document.getElementById('save-zoom').value) || 1.0;
+  const dir = document.getElementById('save-dir').value || stageId;
+  
+  const props = state.elements.filter(e => e.type === 'prop').map(e => ({
+    name: e.name,
+    assetPath: e.name,
+    animType: 'sparrow',
+    animations: [],
+    position: [Math.round(e.x), Math.round(e.y)],
+    scale: [parseFloat((e.w/100).toFixed(2)), parseFloat((e.h/100).toFixed(2))],
+    scroll: [0.9, 0.9],
+    zIndex: e.zIndex,
+    danceEvery: 0,
+    isPixel: false,
+    alpha: 1, flipX: e.flipX, flipY: e.flipY,
+    startingAnimation: '',
+  }));
+  
+  if (state.bgSrc) {
+    props.unshift({
+      name: 'stageback',
+      assetPath: 'stageback',
+      animType: 'none',
+      animations: [],
+      position: [Math.round(state.bgX / state.scale), Math.round(state.bgY / state.scale)],
+      scale: [1, 1],
+      scroll: [1, 1],
+      zIndex: 0,
+      danceEvery: 0,
+      isPixel: false,
+      alpha: 1, flipX: false, flipY: false,
+      startingAnimation: '',
+    });
+  }
+  
+  const characters = {};
+  state.elements.filter(e => e.type === 'char').forEach(e => {
+    const key = e.charType === 'bf' ? 'bf' : e.charType === 'gf' ? 'girlfriend' : e.charType === 'dad' ? 'dad' : e.charType;
+    characters[key] = {
+      zIndex: e.zIndex,
+      position: [Math.round(e.x), Math.round(e.y + e.h)],
+      cameraOffsets: key === 'bf' ? [-100,-100] : key === 'dad' ? [150,-100] : [0,0]
+    };
+  });
+  
+  return {
+    version: '1.0.0',
+    name: stageName,
+    directory: dir,
+    cameraZoom: cameraZoom,
+    props,
+    characters
+  };
+}
+
+function doSave() {
+  const json = buildJSON();
+  const stageId = document.getElementById('save-id').value || 'meu-stage';
+  const blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = stageId + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  closeModal('saveModal');
+  notify('Stage exportado: ' + stageId + '.json ✓');
+  beep(1200,.15);
+  // Save to recents
+  const rec = document.getElementById('recent1');
+  rec.style.opacity = '1';
+  rec.style.pointerEvents = 'auto';
+  rec.querySelector('.rc-name').textContent = stageId.toUpperCase();
+  rec.querySelector('.rc-desc').textContent = 'Salvo agora';
+}
+
+// ═══ KEYBOARD SHORTCUTS ═══
+document.addEventListener('keydown', e => {
+  if (curScreen !== 's-editor') return;
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (!['INPUT','TEXTAREA'].includes(e.target.tagName)) removeSelected();
+  }
+  if (e.key === 'Escape') {
+    deselectAll();
+    setMode('select');
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    openSaveModal();
+  }
+  if (state.selected) {
+    const el = state.elements.find(x => x.id === state.selected);
+    if (!el) return;
+    const step = e.shiftKey ? 10 : 1;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); el.x -= step; updateElDOM(el); document.getElementById('ppX').value = Math.round(el.x); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); el.x += step; updateElDOM(el); document.getElementById('ppX').value = Math.round(el.x); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); el.y -= step; updateElDOM(el); document.getElementById('ppY').value = Math.round(el.y); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); el.y += step; updateElDOM(el); document.getElementById('ppY').value = Math.round(el.y); }
+  }
+});
+
+// Init
+setTimeout(() => beep(900,.15), 100);
+</script>
+</body>
+</html>
